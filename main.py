@@ -130,11 +130,11 @@ if st.session_state.active_view == "Dashboard":
 
     st.markdown("### 🛜 LIVE GO-DASHBOARD")
     
-    # Render Timeline Stops with unified container styles
+    # Render Timeline Stops with fixed column declarations
     for s in trip_ref["stops"]:
         if s["is_live"]:
             with st.container(border=True):
-                col_l1, col_l2 = st.columns()
+                col_l1, col_l2 = st.columns(2)  # Fixed: Added explicit columns allocation count (2)
                 col_l1.markdown(f"🍔 **{s['name']}** &nbsp; <span class='blinking-live-tag'>LIVE</span>", unsafe_allow_html=True)
                 col_l1.caption(f"{s['meal']} · {s['day']} · {s['time']}")
                 
@@ -149,11 +149,11 @@ if st.session_state.active_view == "Dashboard":
                     st.rerun()
         else:
             with st.container(border=True):
-                col_i1, col_i2 = st.columns()
+                col_i1, col_i2 = st.columns(2)  # Fixed: Added explicit columns allocation count (2)
                 col_i1.markdown(f"🏨 **{s['name']}**")
                 col_i1.caption(f"{s['meal']} · {s['day']} · {s['time']}")
                 
-                if col_i2.button(f"Share as Live ", key=f"start_{s['id']}"):
+                if col_i2.button(f"Share as Live", key=f"start_{s['id']}"):
                     s["is_live"] = True
                     s["live_start_time"] = time.time()
                     st.rerun()
@@ -162,7 +162,7 @@ if st.session_state.active_view == "Dashboard":
     st.markdown("##### Tracking (1/10 submitted)")
     for g in st.session_state.guests:
         with st.container(border=True):
-            cg1, cg2, cg3 = st.columns()
+            cg1, cg2, cg3 = st.columns(3)  # Fixed: Explicit columns configuration
             cg1.markdown(f"👤 **{g['name']}**<br><span style='font-size:0.8em; color:gray;'>ID: {g['id']}</span>", unsafe_allow_html=True)
             
             if g["submitted"]:
@@ -199,7 +199,7 @@ if st.session_state.active_view == "Dashboard":
         st.rerun()
 
 # =========================================================================
-# 🛠️ VIEW INTERFACE 2: TRIP SETUP MODAL (FIXED INDENTATION ON THIS SECTION)
+# 🛠️ VIEW INTERFACE 2: TRIP SETUP MODAL
 # =========================================================================
 elif st.session_state.active_view == "Trip Setup":
     st.header("📖 Trip Setup & Parameters")
