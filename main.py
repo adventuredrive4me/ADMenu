@@ -4,11 +4,11 @@ import io
 import time
 from datetime import datetime
 
-# --- SYSTEM PERMANENT SESSION STATE MATRIX ---
+# --- PERMANENT DATABASE & STATE INITIALIZATION ---
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 if 'active_view' not in st.session_state:
-    st.session_state.active_view = "Dashboard"  # System keypad view routing
+    st.session_state.active_view = "Dashboard"
 if 'trips' not in st.session_state:
     st.session_state.trips = {
         "Canyon Odyssey": {
@@ -50,12 +50,12 @@ if 'guests' not in st.session_state:
 
 st.set_page_config(page_title="ADMenu App Engine", layout="centered")
 
-# --- ADVANCED CSS ENGINE OVERRIDES FOR TARGETED SMARTPHONE INTERFACES ---
+# --- ADVANCED CSS INJECTION TO FORCE SOLID COLOR BUTTON STYLING & ANIMATIONS ---
 st.markdown("""
 <style>
     @keyframes blink {
         0% { opacity: 1; }
-        50% { opacity: 0.2; }
+        50% { opacity: 0.3; }
         100% { opacity: 1; }
     }
     .blinking-live-tag {
@@ -65,12 +65,12 @@ st.markdown("""
         border-radius: 4px;
         font-size: 0.85em;
         font-weight: bold;
-        animation: blink 1s infinite;
+        animation: blink 1.2s infinite;
         display: inline-block;
     }
     .stButton > button { width: 100%; border-radius: 8px; }
     
-    /* 🔴 Crimson Red Custom Rules Injection for 'Stop Live' Action Elements */
+    /* 🔴 Strict CSS Override for Stop Live Button */
     div[data-testid="stHorizontalBlock"] div.stButton button[aria-label="Stop Live"] {
         background-color: #dc3545 !important;
         color: white !important;
@@ -79,9 +79,10 @@ st.markdown("""
     }
     div[data-testid="stHorizontalBlock"] div.stButton button[aria-label="Stop Live"]:hover {
         background-color: #bd2130 !important;
+        border: 1px solid #b21f2d !important;
     }
     
-    /* 🟢 Vivid Emerald Custom Rules Injection for 'Share as Live' Action Elements */
+    /* 🟢 Strict CSS Override for Share as Live Button */
     div[data-testid="stHorizontalBlock"] div.stButton button[aria-label^="Share as Live"] {
         background-color: #28a745 !important;
         color: white !important;
@@ -90,17 +91,18 @@ st.markdown("""
     }
     div[data-testid="stHorizontalBlock"] div.stButton button[aria-label^="Share as Live"]:hover {
         background-color: #218838 !important;
+        border: 1px solid #1e7e34 !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# --- SECURITY PROTECTION INTERCEPTOR ---
+# --- SECURITY GATEKEEPER ---
 if not st.session_state.logged_in:
-    st.title("📱 ADMenu Private Gateway")
+    st.title("📱 ADMenu Security Gateway")
     with st.container(border=True):
         u = st.text_input("Username", value="admin")
         p = st.text_input("Password", type="password", value="admin")
-        if st.button("Unlock Admin Terminal Workspace", type="primary"):
+        if st.button("Unlock Terminal Platform", type="primary"):
             if u == "admin" and p == "admin":
                 st.session_state.logged_in = True
                 st.rerun()
@@ -109,12 +111,12 @@ if not st.session_state.logged_in:
 
 # --- BACK TO DASHBOARD NAVIGATION LINK ---
 if st.session_state.active_view != "Dashboard":
-    if st.button("⬅— Return to Main Live Dashboard"):
+    if st.button("⬅️ Return to Main Live Dashboard"):
         st.session_state.active_view = "Dashboard"
         st.rerun()
 
 # =========================================================================
-# 📺 VIEW LAYER 1: THE LIVE GO-DASHBOARD (MAIN LANDING VIEW)
+# 📺 VIEW INTERFACE 1: THE LIVE GO-DASHBOARD (MAIN VIEW)
 # =========================================================================
 if st.session_state.active_view == "Dashboard":
     st.title("📱 ADMenu Dashboard")
@@ -124,22 +126,22 @@ if st.session_state.active_view == "Dashboard":
     
     with st.container(border=True):
         st.subheader(active_trip_name)
-        st.caption(f"🗓️ Duration Metrics: {trip_ref['start'].strftime('%d %b')} → {trip_ref['end'].strftime('%d %b %Y')} ({trip_ref['days']} Days / {trip_ref['nights']} Nights)")
+        st.caption(f"🗓️ Calendar Parameters: {trip_ref['start'].strftime('%d %b')} → {trip_ref['end'].strftime('%d %b %Y')}")
 
     st.markdown("### 🛜 LIVE GO-DASHBOARD")
     
-    # Process Timeline Stops with Unified Container Styles
+    # Render Timeline Stops with unified container styles
     for s in trip_ref["stops"]:
         if s["is_live"]:
             with st.container(border=True):
-                col_l1, col_l2 = st.columns([2, 1])
+                col_l1, col_l2 = st.columns()
                 col_l1.markdown(f"🍔 **{s['name']}** &nbsp; <span class='blinking-live-tag'>LIVE</span>", unsafe_allow_html=True)
                 col_l1.caption(f"{s['meal']} · {s['day']} · {s['time']}")
                 
                 if s["live_start_time"]:
                     elapsed = int(time.time() - s["live_start_time"])
                     m, s_sec = divmod(elapsed, 60)
-                    col_l1.markdown(f"⏱️ **Active Selection Ticker:** {m}m {s_sec}s")
+                    col_l1.markdown(f"⏱️ **Active ordering duration:** {m}m {s_sec}s")
                 
                 if col_l2.button("Stop Live", key=f"stop_{s['id']}"):
                     s["is_live"] = False
@@ -147,11 +149,11 @@ if st.session_state.active_view == "Dashboard":
                     st.rerun()
         else:
             with st.container(border=True):
-                col_i1, col_i2 = st.columns([2, 1])
+                col_i1, col_i2 = st.columns()
                 col_i1.markdown(f"🏨 **{s['name']}**")
                 col_i1.caption(f"{s['meal']} · {s['day']} · {s['time']}")
                 
-                if col_i2.button(f"Share as Live", key=f"start_{s['id']}"):
+                if col_i2.button(f"Share as Live ", key=f"start_{s['id']}"):
                     s["is_live"] = True
                     s["live_start_time"] = time.time()
                     st.rerun()
@@ -160,54 +162,56 @@ if st.session_state.active_view == "Dashboard":
     st.markdown("##### Tracking (1/10 submitted)")
     for g in st.session_state.guests:
         with st.container(border=True):
-            cg1, cg2, cg3 = st.columns([2, 1, 1])
+            cg1, cg2, cg3 = st.columns()
             cg1.markdown(f"👤 **{g['name']}**<br><span style='font-size:0.8em; color:gray;'>ID: {g['id']}</span>", unsafe_allow_html=True)
             
             if g["submitted"]:
-                cg2.markdown("<div style='padding-top:10px;'><span style='background-color:#d4edda; color:#155724; padding:6px 12px; border-radius:4px; font-size:0.9em; font-weight:bold;'>Submitted</span></div>", unsafe_allow_html=True)
+                cg2.markdown("<div style='padding-top:10px;'><span style='background-color:#d4edda; color:#155724; padding:6px 12px; border-radius:4px; font-size:0.9em;'>Submitted</span></div>", unsafe_allow_html=True)
                 if cg3.button("Allow changes", key=f"chg_{g['id']}"):
                     g["submitted"] = False
                     st.rerun()
             else:
-                cg2.markdown("<div style='padding-top:10px;'><span style='background-color:#fff3cd; color:#856404; padding:6px 12px; border-radius:4px; font-size:0.9em; font-weight:bold;'>Pending</span></div>", unsafe_allow_html=True)
+                cg2.markdown("<div style='padding-top:10px;'><span style='background-color:#fff3cd; color:#856404; padding:6px 12px; border-radius:4px; font-size:0.9em;'>Pending</span></div>", unsafe_allow_html=True)
                 if cg3.button("🔔 Ping", key=f"png_{g['id']}"):
                     st.toast(f"Notification alert dispatched to {g['name']}!")
 
     # --- THE CENTRAL GRID ACTION CONTROLLER KEYPAD ---
     st.markdown("### 🛠️ ADMIN TOOLS")
     b_col1, b_col2 = st.columns(2)
-    if b_col1.button("📖 Trip Setup", key="k_setup"):
+    
+    if b_col1.button("📖 Trip Setup", key="tool_setup"):
         st.session_state.active_view = "Trip Setup"
         st.rerun()
-    if b_col2.button("🍳 Menu Builder", key="k_menu"):
+    if b_col2.button("🍳 Menu Builder", key="tool_menu"):
         st.session_state.active_view = "Menu Builder"
         st.rerun()
         
     b_col3, b_col4 = st.columns(2)
-    if b_col3.button("👥 Guest List", key="k_guests"):
+    if b_col3.button("👥 Guest List", key="tool_guests"):
         st.session_state.active_view = "Guest List"
         st.rerun()
-    if b_col4.button("📊 Consolidation & Export", key="k_export"):
+    if b_col4.button("📊 Consolidation & Export", key="tool_export"):
         st.session_state.active_view = "Consolidation & Export"
         st.rerun()
         
-    if st.button("💵 Ledger", key="k_ledger"):
+    if st.button("💵 Ledger & B&L Accounts Summary", key="tool_ledger"):
         st.session_state.active_view = "Ledger"
         st.rerun()
 
 # =========================================================================
-# 🛠️ VIEW LAYER 2: TRIP SETUP SUBSYSTEM
+# 🛠️ VIEW INTERFACE 2: TRIP SETUP MODAL (FIXED INDENTATION ON THIS SECTION)
 # =========================================================================
 elif st.session_state.active_view == "Trip Setup":
     st.header("📖 Trip Setup & Parameters")
+    
+    active_trip_name = list(st.session_state.trips.keys())[0]
+    trip_ref = st.session_state.trips[active_trip_name]
+    
     with st.form("master_setup_form"):
-        t_name = st.text_input("Trip Designation Name", value="Canyon Odyssey")
-        sd = st.date_input("Start Date Profile")
-        st_time = st.time_input("Start Departure Time")
-        ed = st.date_input("End Date Profile")
-        et_time = st.time_input("End Return Time")
-        st.markdown("##### 💱 Currency Settings")
-        t_curr = st.selectbox("Operational Currency", ["NPR - Nepalese Rupee", "INR - Indian Rupee"])
-        ex_rate = st.number_input("Exchange Multiplier (1 Local Unit = ? INR)", min_value=0.01, value=0.60)
+        t_name = st.text_input("Trip Designation Name", value=active_trip_name)
+        sd = st.date_input("Start Date Profile", value=trip_ref["start"].date())
+        st_time = st.time_input("Start Departure Time", value=trip_ref["start"].time())
+        ed = st.date_input("End Date Profile", value=trip_ref["end"].date())
+        et_time = st.time_input("End Return Time", value=trip_ref["end"].time())
         
-        if st.form_submit_button("Update Trip Setup Properties"):
+        st.markdown("##### 💱 Currency Profile Tracker")
