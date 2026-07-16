@@ -83,7 +83,6 @@ if st.session_state.active_view != "Dashboard":
 if st.session_state.active_view == "Dashboard":
     st.title("📱 ADMenu Dashboard")
     
-    # Active Trip Identifier Header
     active_trip_name = list(st.session_state.trips.keys())[0]
     trip_ref = st.session_state.trips[active_trip_name]
     
@@ -93,12 +92,10 @@ if st.session_state.active_view == "Dashboard":
 
     st.markdown("### 🛜 LIVE GO-DASHBOARD")
     
-    # Render Timeline Stops with Live Toggles
     for s in trip_ref["stops"]:
         if s["is_live"]:
-            # Green Live Alert Container Card
             st.markdown(f"<div style='border: 2px solid #28a745; background-color: #f8fff9; padding: 15px; border-radius: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
-            col_l1, col_l2 = st.columns([3, 1])
+            col_l1, col_l2 = st.columns(2)
             col_l1.markdown(f"🍔 **{s['name']}** &nbsp; <span style='background-color:#28a745; color:white; padding:2px 6px; border-radius:4px; font-size:0.8em;'>LIVE</span>", unsafe_allow_html=True)
             
             if col_l2.button("Stop Live", key=f"stop_{s['id']}"):
@@ -108,16 +105,14 @@ if st.session_state.active_view == "Dashboard":
                 
             st.caption(f"{s['meal']} · {s['day']} · {s['time']}")
             
-            # Live Countdown Clock Math
             if s["live_start_time"]:
                 elapsed = int(time.time() - s["live_start_time"])
                 m, s_sec = divmod(elapsed, 60)
                 st.markdown(f"⏱️ **Active ordering duration window:** {m}m {s_sec}s")
             st.markdown("</div>", unsafe_allow_html=True)
         else:
-            # Standard Grey Idle Card
             with st.container(border=True):
-                col_i1, col_i2 = st.columns([3, 1])
+                col_i1, col_i2 = st.columns(2)
                 col_i1.markdown(f"🏨 **{s['name']}**")
                 col_i1.caption(f"{s['meal']} · {s['day']} · {s['time']}")
                 if col_i2.button("Share as Live", key=f"start_{s['id']}", type="secondary"):
@@ -125,11 +120,10 @@ if st.session_state.active_view == "Dashboard":
                     s["live_start_time"] = time.time()
                     st.rerun()
 
-    # Real-Time Guest Submission Status Grid
     st.markdown("##### Tracking (1/10 submitted)")
     for g in st.session_state.guests:
         with st.container(border=True):
-            cg1, cg2, cg3 = st.columns([2, 1, 1])
+            cg1, cg2, cg3 = st.columns(3)
             cg1.markdown(f"👤 **{g['name']}**<br><span style='font-size:0.8em; color:gray;'>ID: {g['id']}</span>", unsafe_allow_html=True)
             
             if g["submitted"]:
@@ -142,7 +136,6 @@ if st.session_state.active_view == "Dashboard":
                 if cg3.button("🔔 Ping", key=f"png_{g['id']}"):
                     st.toast(f"Notification alert dispatched to {g['name']}!")
 
-    # --- THE CENTRAL GRID ACTION CONTROLLER KEYPAD ---
     st.markdown("### 🛠️ ADMIN TOOLS")
     b_col1, b_col2 = st.columns(2)
     
@@ -191,7 +184,7 @@ elif st.session_state.active_view == "Trip Setup":
             st.success("Trip properties synchronized successfully!")
 
 # =========================================================================
-# 🛠️ VIEW INTERFACE 3: MENU BUILDER MODULE
+# 🛠️ VIEW INTERFACE 3: MENU BUILDER MODULE (FIXED LINES 204+)
 # =========================================================================
 elif st.session_state.active_view == "Menu Builder":
     st.header("🍳 Menu Item Builder Architecture")
@@ -202,3 +195,8 @@ elif st.session_state.active_view == "Menu Builder":
     target_stop = next(s for s in trip_ref["stops"] if s["name"] == target_stop_name)
     
     with st.form("add_food_item_form", clear_on_submit=True):
+        f_name = st.text_input("Food Item Name*")
+        f_course = st.selectbox("Course Assignment", ["Starter", "Main Course", "Soup", "Dessert", "Beverages"])
+        f_unit = st.text_input("Unit of Measure", value="Plate")
+        f_ratio = st.number_input("Ratio per Person", value=1.0)
+        f_price = st.number_input("Base Local Unit Price", value=100.0)
