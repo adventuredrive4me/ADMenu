@@ -111,7 +111,7 @@ if st.session_state.active_view != "Dashboard":
         st.session_state.active_view = "Dashboard"
         st.rerun()
 
-# Unpack key values safely as string characters
+# FIXED: Safely extracting the raw string index out of the keys array
 active_trip_list = list(st.session_state.trips.keys())
 active_trip_name = active_trip_list[0]
 trip_ref = st.session_state.trips[active_trip_name]
