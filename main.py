@@ -124,7 +124,7 @@ if not st.session_state.logged_in:
                 st.session_state.logged_in = True
                 st.rerun()
             else: 
-                st.error("Invalid credentials.")
+                st.error("Withdrawn. Incorret administrative credentials.")
     st.stop()
 
 # --- BACK ACTION RETURN ANCHOR ---
@@ -134,15 +134,15 @@ if st.session_state.active_view != "Dashboard":
         st.rerun()
 
 # =========================================================================
-# SCREEN 1: CORE DASHBOARD PANEL (YOUR PRECISE GRAPHIC ENVIRONMENT)
+# SCREEN 1: CORE DASHBOARD PANEL (MATCHES CONTROL PAD BUTTON LAYOUT)
 # =========================================================================
 if st.session_state.active_view == "Dashboard":
     
-    active_trip_name = list(st.session_state.trips.keys())[0]  # Safe scalar parsing
+    active_trip_name = list(st.session_state.trips.keys())[0]
     trip_ref = st.session_state.trips[active_trip_name]
     
-    curr_iso = trip_ref['currency'].split(' ')[0]
-    curr_sym = "रू" if curr_iso == "NPR" else ("€" if curr_iso == "EUR" else ("$" if curr_iso == "USD" else "₹"))
+    curr_iso = trip_ref['currency'].split(' ')
+    curr_sym = "रू" if curr_iso[0] == "NPR" else ("€" if curr_iso[0] == "EUR" else ("$" if curr_iso[0] == "USD" else "₹"))
 
     with st.container(border=True):
         st.markdown(f"### **{active_trip_name}**")
@@ -161,7 +161,6 @@ if st.session_state.active_view == "Dashboard":
                 else:
                     st.markdown(f"🏨 **{s['name']}**")
                 
-                # Safe Lookup Check: Guarantees fallback if key is missing
                 meal_val = s.get("meal", "Lunch")
                 day_val = s.get("day", "Day 2")
                 date_val = s.get("date_str", "27 Oct")
@@ -186,7 +185,7 @@ if st.session_state.active_view == "Dashboard":
                         s["live_start_time"] = time.time()
                         st.rerun()
 
-    # --- ADMIN TOOLS CONTROLLER PAD (MATCHES SCREEN IMAGE PERFECTLY) ---
+    # --- ADMIN TOOLS CONTROLLER PAD ---
     st.markdown("#### ADMIN TOOLS")
     
     col_btn1, col_btn2 = st.columns(2)
@@ -222,3 +221,5 @@ if st.session_state.active_view == "Dashboard":
                     g["submitted"] = False
                     st.rerun()
             else:
+                cg2.markdown("<span style='background-color:#fff3cd; color:#856404; padding:4px 8px; border-radius:4px; font-size:0.85em;'>⏳ Pending</span>", unsafe_allow_html=True)
+                if cg3.button("🔔 Ping", key=f"png_{g['id']}"):
