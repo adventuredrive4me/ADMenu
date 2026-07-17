@@ -181,7 +181,7 @@ else:
     st.caption(f"No active itinerary route stops assigned under the {audit_cat} wave parameter.")
 
 # -------------------------------------------------------------------------
-# MODULE 3: GUEST INTERFACE FEED SIMULATOR
+# MODULE 3: GUEST INTERFACE FEED SIMULATOR (FIXED INDENTATION ON LOOPS)
 # -------------------------------------------------------------------------
 st.markdown("---")
 st.markdown("### 📱 SMARTPHONE GUEST APPLICATION INTERFACE")
