@@ -113,7 +113,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- SYSTEM SECURITY ENTRY PROTOCOL ---
+# --- SECURITY PROFILE LAYER ---
 if not st.session_state.logged_in:
     st.title("📱 ADMenu Security Gateway")
     with st.container(border=True):
@@ -124,37 +124,33 @@ if not st.session_state.logged_in:
                 st.session_state.logged_in = True
                 st.rerun()
             else: 
-                st.error("Invalid administrator profile parameter entry matches.")
+                st.error("Invalid credentials.")
     st.stop()
 
-# --- BACK ACTION RETURN FLOATING LINK ---
+# --- BACK ACTION RETURN ANCHOR ---
 if st.session_state.active_view != "Dashboard":
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.sidebar.button("⬅️ Return to Main Console View"):
+    if st.button("⬅_ Back to Dashboard"):
         st.session_state.active_view = "Dashboard"
         st.rerun()
 
 # =========================================================================
-# VIEW CONTROLLER 1: CORE SCREEN LIVE GO-DASHBOARD (YOUR IMAGE LAYOUT)
+# SCREEN 1: CORE DASHBOARD PANEL (YOUR PRECISE GRAPHIC ENVIRONMENT)
 # =========================================================================
 if st.session_state.active_view == "Dashboard":
     
-    # Extract string key safely to eliminate dictionary indexing crashes
     active_trip_name = list(st.session_state.trips.keys())[0]
     trip_ref = st.session_state.trips[active_trip_name]
     
-    # Format Currency Strings
-    curr_iso = trip_ref['currency'].split(' ')[0]
-    curr_sym = "रू" if curr_iso == "NPR" else ("€" if curr_iso == "EUR" else ("$" if curr_iso == "USD" else "₹"))
+    curr_iso = trip_ref['currency'].split(' ')
+    curr_sym = "रू" if curr_iso[0] == "NPR" else ("€" if curr_iso[0] == "EUR" else ("$" if curr_iso[0] == "USD" else "₹"))
 
-    # Render Header Card matching your layout view profile precisely
     with st.container(border=True):
         st.markdown(f"### **{active_trip_name}**")
         st.markdown(f"<span style='color:gray;'>{trip_ref['start'].strftime('%d %b')} — {trip_ref['end'].strftime('%d %b')}</span>", unsafe_allow_html=True)
 
     st.markdown("#### 🛜 LIVE GO-DASHBOARD")
     
-    # Render Dynamic Multi-Stop Route Timelines
+    # Render Timeline Stops
     for s in trip_ref["stops"]:
         with st.container(border=True):
             col_l1, col_l2 = st.columns([2, 1])
@@ -166,11 +162,10 @@ if st.session_state.active_view == "Dashboard":
                     st.markdown(f"🏨 **{s['name']}**")
                 st.caption(f"{s['meal']} · {s['day']} · {s['date_str']}, {s['time']}")
                 
-                # Active Dynamic Countdown Clock Readout
                 if s["is_live"] and s["live_start_time"]:
                     elapsed = int(time.time() - s["live_start_time"])
                     m, s_sec = divmod(elapsed, 60)
-                    st.markdown(f"<small style='color:#dc3545;'>⏱️ Ordering Active: <b>{m}m {s_sec}s</b></small>", unsafe_allow_html=True)
+                    st.markdown(f"<small style='color:#dc3545;'>⏱️ Ordering Window Active: <b>{m}m {s_sec}s</b></small>", unsafe_allow_html=True)
 
             with col_l2:
                 st.markdown("<div style='padding-top:8px;'></div>", unsafe_allow_html=True)
@@ -185,11 +180,11 @@ if st.session_state.active_view == "Dashboard":
                         s["live_start_time"] = time.time()
                         st.rerun()
 
-    # --- ADMIN TOOLS CONTROLLER PAD GENERATOR (MATCHES IMAGE SPEC) ---
+    # --- ADMIN TOOLS CONTROLLER PAD (MATCHES SCREEN IMAGE PERFECTLY) ---
     st.markdown("#### ADMIN TOOLS")
     
     col_btn1, col_btn2 = st.columns(2)
-    if col_btn1.button("📖\n\nTrip Setup", key="pad_setup"):
+    if col_btn1.button("📋\n\nTrip Setup", key="pad_setup"):
         st.session_state.active_view = "Trip Setup"
         st.rerun()
     if col_btn2.button("🍴\n\nMenu Builder", key="pad_builder"):
@@ -208,16 +203,21 @@ if st.session_state.active_view == "Dashboard":
         st.session_state.active_view = "Ledger"
         st.rerun()
 
-    # Real-Time Passenger Status Monitor Summary Feed
+    # Real-Time Passenger Status Monitor
     st.markdown("---")
     st.markdown("##### 👥 Passenger Selection Audit List")
     for g in st.session_state.guests:
         with st.container(border=True):
-            cg1, cg2, cg3 = st.columns([1, 1, 1])
+            cg1, cg2, cg3 = st.columns([2, 1, 1])
             cg1.markdown(f"👤 **{g['name']}** <small style='color:gray;'>(ID: {g['id']})</small>", unsafe_allow_html=True)
             if g["submitted"]:
                 cg2.markdown("<span style='background-color:#d4edda; color:#155724; padding:4px 8px; border-radius:4px; font-size:0.85em;'>✅ Submitted</span>", unsafe_allow_html=True)
-                if cg3.button("Reset Entry", key=f"reset_{g['id']}"):
+                if cg3.button("Reset", key=f"reset_{g['id']}"):
                     g["submitted"] = False
                     st.rerun()
             else:
+                cg2.markdown("<span style='background-color:#fff3cd; color:#856404; padding:4px 8px; border-radius:4px; font-size:0.85em;'>⏳ Pending</span>", unsafe_allow_html=True)
+                if cg3.button("🔔 Ping", key=f"png_{g['id']}"):
+                    st.toast(f"Notification alert dispatched to {g['name']}!")
+# =========================================================================
+# SCREEN 2: TRIP SETUP ENVIRONMENT
