@@ -111,11 +111,11 @@ if not st.session_state.logged_in:
 # =========================================================================
 st.title("📱 ADMenu Master Console")
 
-# Fixed: Extracting the string element safely from the keys list
 active_trip_name = list(st.session_state.trips.keys())[0]
 trip_ref = st.session_state.trips[active_trip_name]
 
-curr_iso = trip_ref['currency'].split(' ')
+# Fixed: Extracting string code token fragment cleanly from the parameter value string 
+curr_iso = trip_ref['currency'].split(' ')[0]
 curr_sym = "रू" if curr_iso == "NPR" else ("€" if curr_iso == "EUR" else ("$" if curr_iso == "USD" else "₹"))
 
 with st.container(border=True):
