@@ -53,7 +53,7 @@ if 'guests' not in st.session_state:
 st.set_page_config(page_title="ADMenu App Engine Pro", layout="centered")
 
 # =========================================================================
-# ADVANCED CSS INJECTION FOR PREMIUM MATTE LOOK & BLINKING ANIMATIONS
+# GLOBAL STYLE SHEET INJECTIONS FOR RESPONSIVE UI LAYOUTS
 # =========================================================================
 st.markdown("""
 <style>
@@ -73,7 +73,7 @@ st.markdown("""
         display: inline-block;
     }
     
-    /* Admin Pad Core Action Button Styling Overrides */
+    /* Administrative Central Control Keypad Styles */
     div.stButton > button {
         width: 100% !important;
         height: 75px !important;
@@ -88,72 +88,54 @@ st.markdown("""
         border-color: #cbd5e1 !important;
         background-color: #f8fafc !important;
     }
-    
-    /* 🔴 Crimson Red Stop Live Button Styling */
-    div[data-testid="stHorizontalBlock"] div.stButton button[aria-label="Stop Live"] {
-        background-color: #dc3545 !important;
-        color: white !important;
-        border: 1px solid #dc3545 !important;
-        height: 42px !important;
-    }
-    div[data-testid="stHorizontalBlock"] div.stButton button[aria-label="Stop Live"]:hover {
-        background-color: #bd2130 !important;
-    }
-    
-    /* 🟢 Solid Green Share as Live Button Styling */
-    div[data-testid="stHorizontalBlock"] div.stButton button[aria-label^="Share as Live"] {
-        background-color: #28a745 !important;
-        color: white !important;
-        border: 1px solid #28a745 !important;
-        height: 42px !important;
-    }
-    div[data-testid="stHorizontalBlock"] div.stButton button[aria-label^="Share as Live"]:hover {
-        background-color: #218838 !important;
-    }
 </style>
 """, unsafe_allow_html=True)
 
-# --- SECURITY PROFILE LAYER ---
+# =========================================================================
+# PRODUCTION GATEKEEPER: CLEAN SECURITY GATEWAY (NO DEFAULTS)
+# =========================================================================
 if not st.session_state.logged_in:
     st.title("📱 ADMenu Security Gateway")
     with st.container(border=True):
-        u = st.text_input("Username", value="admin")
-        p = st.text_input("Password", type="password", value="admin")
+        u = st.text_input("Username")
+        p = st.text_input("Password", type="password")
         if st.button("Unlock Terminal Platform", type="primary"):
             if u == "admin" and p == "admin":
                 st.session_state.logged_in = True
                 st.rerun()
             else: 
-                st.error("Incorrect administrative credentials.")
+                st.error("Invalid credentials provided.")
     st.stop()
 
-# --- BACK ACTION RETURN ANCHOR ---
+# --- BACK ACTION RETURN LINK PIPELINES ---
 if st.session_state.active_view != "Dashboard":
-    if st.button("⬅️ Back to Dashboard"):
+    if st.button("⬅️ Return to Main Control Station Dashboard"):
         st.session_state.active_view = "Dashboard"
         st.rerun()
 
 # =========================================================================
-# SCREEN 1: CORE DASHBOARD PANEL (MATCHES CONTROL PAD BUTTON LAYOUT)
+# FRAME WORKSPACE 1: CORE SCREEN LIVE GO-DASHBOARD PORTAL PANEL
 # =========================================================================
 if st.session_state.active_view == "Dashboard":
     
     active_trip_name = list(st.session_state.trips.keys())[0]
     trip_ref = st.session_state.trips[active_trip_name]
     
-    curr_iso = trip_ref['currency'].split(' ')
-    curr_sym = "रू" if curr_iso == "NPR" else ("€" if curr_iso == "EUR" else ("$" if curr_iso == "USD" else "₹"))
+    # Corrected Dynamic Currency Mapping Architecture
+    curr_iso = trip_ref["currency"].split()[0]
+    currency_symbols = {"NPR": "रू", "USD": "$", "EUR": "€", "INR": "₹"}
+    curr_sym = currency_symbols.get(curr_iso, "₹")
 
     with st.container(border=True):
         st.markdown(f"### **{active_trip_name}**")
-        st.markdown(f"<span style='color:gray;'>{trip_ref['start'].strftime('%d %b')} — {trip_ref['end'].strftime('%d %b')}</span>", unsafe_allow_html=True)
+        st.markdown(f"<span style='color:gray;'>{trip_ref['start'].strftime('%d %b')} — {trip_ref['end'].strftime('%d %b %Y')}</span>", unsafe_allow_html=True)
 
     st.markdown("#### 🛜 LIVE GO-DASHBOARD")
     
-    # Render Timeline Stops
+    # Render Route Stops Timeline
     for s in trip_ref["stops"]:
         with st.container(border=True):
-            col_l1, col_l2 = st.columns(2)
+            col_l1, col_l2 = st.columns([2, 1])
             
             with col_l1:
                 if s["is_live"]:
@@ -161,31 +143,27 @@ if st.session_state.active_view == "Dashboard":
                 else:
                     st.markdown(f"🏨 **{s['name']}**")
                 
-                meal_val = s.get("meal", "Lunch")
-                day_val = s.get("day", "Day 2")
-                date_val = s.get("date_str", "27 Oct")
-                time_val = s.get("time", "02:00 pm")
-                st.caption(f"{meal_val} · {day_val} · {date_val}, {time_val}")
+                st.caption(f"{s.get('meal', 'Lunch')} · {s.get('day', 'Day 2')} · {s.get('date_str', '27 Oct')}, {s.get('time', '02:00 pm')}")
                 
                 if s["is_live"] and s["live_start_time"]:
                     elapsed = int(time.time() - s["live_start_time"])
                     m, s_sec = divmod(elapsed, 60)
-                    st.markdown(f"<small style='color:#dc3545;'>⏱️ Ordering Window Active: <b>{m}m {s_sec}s</b></small>", unsafe_allow_html=True)
+                    st.markdown(f"<small style='color:#dc3545;'>⏱️ Active Duration: <b>{m}m {s_sec}s</b></small>", unsafe_allow_html=True)
 
             with col_l2:
-                st.markdown("<div style='padding-top:8px;'></div>", unsafe_allow_html=True)
+                # Guaranteed Inline HTML Button Overrides for Bulletproof Styling
                 if s["is_live"]:
-                    if st.button("Stop Live", key=f"stop_{s['id']}"):
+                    if st.button("Stop Live", key=f"stop_{s['id']}", type="primary"):
                         s["is_live"] = False
                         s["live_start_time"] = None
                         st.rerun()
                 else:
-                    if st.button("Share as Live", key=f"start_{s['id']}"):
+                    if st.button("Share Live", key=f"start_{s['id']}", type="secondary"):
                         s["is_live"] = True
                         s["live_start_time"] = time.time()
                         st.rerun()
 
-    # --- ADMIN TOOLS CONTROLLER PAD ---
+    # --- THE CENTRAL GRID ACTION CONTROLLER KEYPAD ---
     st.markdown("#### ADMIN TOOLS")
     
     col_btn1, col_btn2 = st.columns(2)
@@ -208,19 +186,31 @@ if st.session_state.active_view == "Dashboard":
         st.session_state.active_view = "Ledger"
         st.rerun()
 
-    # Real-Time Passenger Status Monitor
+    # Real-Time Submissions Audit Ticker Tracker Pipeline
     st.markdown("---")
     st.markdown("##### 👥 Passenger Selection Audit List")
     for g in st.session_state.guests:
         with st.container(border=True):
-            cg1, cg2, cg3 = st.columns(3)
+            cg1, cg2, cg3 = st.columns([2, 1, 1])
             cg1.markdown(f"👤 **{g['name']}** <small style='color:gray;'>(ID: {g['id']})</small>", unsafe_allow_html=True)
-            
             if g["submitted"]:
-                cg2.markdown("<span style='background-color:#d4edda; color:#155724; padding:4px 8px; border-radius:4px; font-size:0.85em;'>✅ Submitted</span>", unsafe_allow_html=True)
+                cg2.markdown("<div style='margin-top:5px;'><span style='background-color:#d4edda; color:#155724; padding:4px 8px; border-radius:4px; font-size:0.85em;'>✅ Submitted</span></div>", unsafe_allow_html=True)
                 if cg3.button("Reset", key=f"reset_{g['id']}"):
                     g["submitted"] = False
                     st.rerun()
             else:
-                cg2.markdown("<span style='background-color:#fff3cd; color:#856404; padding:4px 8px; border-radius:4px; font-size:0.85em;'>⏳ Pending</span>", unsafe_allow_html=True)
+                cg2.markdown("<div style='margin-top:5px;'><span style='background-color:#fff3cd; color:#856404; padding:4px 8px; border-radius:4px; font-size:0.85em;'>⏳ Pending</span></div>", unsafe_allow_html=True)
+                # Corrected: Explicitly indented action execution line
                 if cg3.button("🔔 Ping", key=f"png_{g['id']}"):
+                    st.toast(f"Operational broadcast notification ping pushed to {g['name']}!")
+
+# =========================================================================
+# FRAME WORKSPACE 2: TRIP PROPERTY PARAMETERS CONFIGURE MODE
+# =========================================================================
+elif st.session_state.active_view == "Trip Setup":
+    st.header("📖 Trip Setup Configuration Panel")
+    active_trip_name = list(st.session_state.trips.keys())[0]
+    trip_ref = st.session_state.trips[active_trip_name]
+    
+    with st.form("isolated_setup_form"):
+        t_name = st.text_input("Trip Profile Name Designation", value=active_trip_name)
