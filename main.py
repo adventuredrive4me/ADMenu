@@ -107,23 +107,22 @@ if not st.session_state.logged_in:
     st.stop()
 
 # =========================================================================
-# 📺 ALL-IN-ONE CORE LIVE CONTROL PORTAL
+# 📺 ALL-IN-ONE MASTER CONSOLE
 # =========================================================================
 st.title("📱 ADMenu Master Console")
 
 active_trip_name = list(st.session_state.trips.keys())[0]
 trip_ref = st.session_state.trips[active_trip_name]
 
-# Currency Symbol Evaluator Parser Engine
-curr_iso = trip_ref['currency'].split(' ')
-curr_sym = "रू" if curr_iso[0] == "NPR" else ("€" if curr_iso[0] == "EUR" else ("$" if curr_iso[0] == "USD" else "₹"))
+curr_iso = trip_ref['currency'].split(' ')[0]
+curr_sym = "रू" if curr_iso == "NPR" else ("€" if curr_iso == "EUR" else ("$" if curr_iso == "USD" else "₹"))
 
 with st.container(border=True):
     st.subheader(active_trip_name)
     st.caption(f"🗓️ Parameters: {trip_ref['start'].strftime('%d %b')} → {trip_ref['end'].strftime('%d %b %Y')}")
     col_meta1, col_meta2 = st.columns(2)
     col_meta1.metric("⏳ Duration Calculated", f"{trip_ref['days']} Days / {trip_ref['nights']} Nights")
-    col_meta2.metric("💱 Operational FX Conversion", f"1 {curr_iso[0]} = ₹{trip_ref['exchange_rate']:.4f}")
+    col_meta2.metric("💱 Operational FX Conversion", f"1 {curr_iso} = ₹{trip_ref['exchange_rate']:.4f}")
 
 # -------------------------------------------------------------------------
 # MODULE 1: LIVE ITINERARY GO-DASHBOARD
