@@ -111,21 +111,18 @@ if st.session_state.active_view != "Dashboard":
         st.session_state.active_view = "Dashboard"
         st.rerun()
 
-# FIXED: Safely extracting the raw string index out of the keys array
-active_trip_list = list(st.session_state.trips.keys())
-active_trip_name = active_trip_list[0]
-trip_ref = st.session_state.trips[active_trip_name]
-
-# Standardized Currency Extraction Architecture
-curr_iso = trip_ref["currency"].split()[0]
-currency_symbols = {"NPR": "रू", "USD": "$", "EUR": "€", "INR": "₹"}
-curr_sym = currency_symbols.get(curr_iso, "₹")
-
 # =========================================================================
 # FRAME WORKSPACE 1: CORE DASHBOARD PANEL
 # =========================================================================
 if st.session_state.active_view == "Dashboard":
     st.title("📱 ADMenu Operations Console")
+
+    active_trip_name = list(st.session_state.trips.keys())[0]
+    trip_ref = st.session_state.trips[active_trip_name]
+
+    curr_iso = trip_ref["currency"].split()[0]
+    currency_symbols = {"NPR": "रू", "USD": "$", "EUR": "€", "INR": "₹"}
+    curr_sym = currency_symbols.get(curr_iso, "₹")
 
     with st.container(border=True):
         st.markdown(f"### **{active_trip_name}**")
@@ -208,5 +205,8 @@ if st.session_state.active_view == "Dashboard":
 # =========================================================================
 elif st.session_state.active_view == "Trip Setup":
     st.header("📖 Trip Setup Configuration Panel")
+    active_trip_name = list(st.session_state.trips.keys())[0]
+    trip_ref = st.session_state.trips[active_trip_name]
+    
     with st.form("isolated_setup_form"):
         t_name = st.text_input("Trip Profile Name Designation", value=active_trip_name)
