@@ -53,7 +53,7 @@ if 'guests' not in st.session_state:
 st.set_page_config(page_title="ADMenu App Engine Pro", layout="centered")
 
 # =========================================================================
-# GLOBAL STYLE SHEET INJECTIONS FOR RESPONSIVE UI LAYOUTS
+# ADVANCED CSS INJECTION FOR PREMIUM MATTE LOOK
 # =========================================================================
 st.markdown("""
 <style>
@@ -72,11 +72,9 @@ st.markdown("""
         animation: blink 1.2s infinite;
         display: inline-block;
     }
-    
-    /* Administrative Central Control Keypad Styles */
     div.stButton > button {
         width: 100% !important;
-        height: 75px !important;
+        height: 70px !important;
         background-color: #ffffff !important;
         color: #2b3a4a !important;
         border: 1px solid #e2e8f0 !important;
@@ -104,68 +102,40 @@ if not st.session_state.logged_in:
                 st.session_state.logged_in = True
                 st.rerun()
             else: 
-                st.error("Invalid credentials provided.")
+                st.error("Incorrect administrative credentials.")
     st.stop()
 
-# --- BACK ACTION RETURN LINK PIPELINES ---
+# --- BACK ACTION RETURN FLOATING PIPELINE ---
 if st.session_state.active_view != "Dashboard":
     if st.button("⬅️ Return to Main Control Station Dashboard"):
         st.session_state.active_view = "Dashboard"
         st.rerun()
 
+# Unpack key values safely as string characters
+active_trip_list = list(st.session_state.trips.keys())
+active_trip_name = active_trip_list[0]
+trip_ref = st.session_state.trips[active_trip_name]
+
+# Standardized Currency Extraction Architecture
+curr_iso = trip_ref["currency"].split()[0]
+currency_symbols = {"NPR": "रू", "USD": "$", "EUR": "€", "INR": "₹"}
+curr_sym = currency_symbols.get(curr_iso, "₹")
+
 # =========================================================================
-# FRAME WORKSPACE 1: CORE SCREEN LIVE GO-DASHBOARD PORTAL PANEL
+# FRAME WORKSPACE 1: CORE DASHBOARD PANEL
 # =========================================================================
 if st.session_state.active_view == "Dashboard":
-    
-    active_trip_name = list(st.session_state.trips.keys())[0]
-    trip_ref = st.session_state.trips[active_trip_name]
-    
-    # Corrected Dynamic Currency Mapping Architecture
-    curr_iso = trip_ref["currency"].split()[0]
-    currency_symbols = {"NPR": "रू", "USD": "$", "EUR": "€", "INR": "₹"}
-    curr_sym = currency_symbols.get(curr_iso, "₹")
+    st.title("📱 ADMenu Operations Console")
 
     with st.container(border=True):
         st.markdown(f"### **{active_trip_name}**")
         st.markdown(f"<span style='color:gray;'>{trip_ref['start'].strftime('%d %b')} — {trip_ref['end'].strftime('%d %b %Y')}</span>", unsafe_allow_html=True)
-
-    st.markdown("#### 🛜 LIVE GO-DASHBOARD")
-    
-    # Render Route Stops Timeline
-    for s in trip_ref["stops"]:
-        with st.container(border=True):
-            col_l1, col_l2 = st.columns([2, 1])
-            
-            with col_l1:
-                if s["is_live"]:
-                    st.markdown(f"🍔 **{s['name']}** &nbsp; <span class='blinking-live-tag'>LIVE</span>", unsafe_allow_html=True)
-                else:
-                    st.markdown(f"🏨 **{s['name']}**")
-                
-                st.caption(f"{s.get('meal', 'Lunch')} · {s.get('day', 'Day 2')} · {s.get('date_str', '27 Oct')}, {s.get('time', '02:00 pm')}")
-                
-                if s["is_live"] and s["live_start_time"]:
-                    elapsed = int(time.time() - s["live_start_time"])
-                    m, s_sec = divmod(elapsed, 60)
-                    st.markdown(f"<small style='color:#dc3545;'>⏱️ Active Duration: <b>{m}m {s_sec}s</b></small>", unsafe_allow_html=True)
-
-            with col_l2:
-                # Guaranteed Inline HTML Button Overrides for Bulletproof Styling
-                if s["is_live"]:
-                    if st.button("Stop Live", key=f"stop_{s['id']}", type="primary"):
-                        s["is_live"] = False
-                        s["live_start_time"] = None
-                        st.rerun()
-                else:
-                    if st.button("Share Live", key=f"start_{s['id']}", type="secondary"):
-                        s["is_live"] = True
-                        s["live_start_time"] = time.time()
-                        st.rerun()
+        col_m1, col_m2 = st.columns(2)
+        col_m1.metric("⏳ Duration Calculated", f"{trip_ref['days']} Days / {trip_ref['nights']} Nights")
+        col_m2.metric("💱 Operational FX Conversion", f"1 {curr_iso} = ₹{trip_ref['exchange_rate']:.4f}")
 
     # --- THE CENTRAL GRID ACTION CONTROLLER KEYPAD ---
     st.markdown("#### ADMIN TOOLS")
-    
     col_btn1, col_btn2 = st.columns(2)
     if col_btn1.button("📋\n\nTrip Setup", key="pad_setup"):
         st.session_state.active_view = "Trip Setup"
@@ -186,12 +156,41 @@ if st.session_state.active_view == "Dashboard":
         st.session_state.active_view = "Ledger"
         st.rerun()
 
-    # Real-Time Submissions Audit Ticker Tracker Pipeline
+    st.markdown("---")
+    st.markdown("#### 🛜 LIVE GO-DASHBOARD")
+    
+    # Render Route Stops Timeline
+    for s in trip_ref["stops"]:
+        with st.container(border=True):
+            col_l1, col_l2 = st.columns(2)
+            with col_l1:
+                if s["is_live"]:
+                    st.markdown(f"🍔 **{s['name']}** &nbsp; <span class='blinking-live-tag'>LIVE</span>", unsafe_allow_html=True)
+                else:
+                    st.markdown(f"🏨 **{s['name']}**")
+                st.caption(f"{s.get('meal', 'Lunch')} · {s.get('day', 'Day 2')} · {s.get('date_str', '27 Oct')}, {s.get('time', '02:00 pm')}")
+                if s["is_live"] and s["live_start_time"]:
+                    elapsed = int(time.time() - s["live_start_time"])
+                    m, s_sec = divmod(elapsed, 60)
+                    st.markdown(f"<small style='color:#dc3545;'>⏱️ Active Duration: <b>{m}m {s_sec}s</b></small>", unsafe_allow_html=True)
+            with col_l2:
+                st.markdown("<div style='padding-top:10px;'></div>", unsafe_allow_html=True)
+                if s["is_live"]:
+                    if st.button("Stop Live", key=f"stop_{s['id']}"):
+                        s["is_live"] = False
+                        s["live_start_time"] = None
+                        st.rerun()
+                else:
+                    if st.button("Share Live", key=f"start_{s['id']}"):
+                        s["is_live"] = True
+                        s["live_start_time"] = time.time()
+                        st.rerun()
+
     st.markdown("---")
     st.markdown("##### 👥 Passenger Selection Audit List")
     for g in st.session_state.guests:
         with st.container(border=True):
-            cg1, cg2, cg3 = st.columns([2, 1, 1])
+            cg1, cg2, cg3 = st.columns(3)
             cg1.markdown(f"👤 **{g['name']}** <small style='color:gray;'>(ID: {g['id']})</small>", unsafe_allow_html=True)
             if g["submitted"]:
                 cg2.markdown("<div style='margin-top:5px;'><span style='background-color:#d4edda; color:#155724; padding:4px 8px; border-radius:4px; font-size:0.85em;'>✅ Submitted</span></div>", unsafe_allow_html=True)
@@ -200,17 +199,14 @@ if st.session_state.active_view == "Dashboard":
                     st.rerun()
             else:
                 cg2.markdown("<div style='margin-top:5px;'><span style='background-color:#fff3cd; color:#856404; padding:4px 8px; border-radius:4px; font-size:0.85em;'>⏳ Pending</span></div>", unsafe_allow_html=True)
-                # Corrected: Explicitly indented action execution line
                 if cg3.button("🔔 Ping", key=f"png_{g['id']}"):
                     st.toast(f"Operational broadcast notification ping pushed to {g['name']}!")
+                    st.rerun()
 
 # =========================================================================
 # FRAME WORKSPACE 2: TRIP PROPERTY PARAMETERS CONFIGURE MODE
 # =========================================================================
 elif st.session_state.active_view == "Trip Setup":
     st.header("📖 Trip Setup Configuration Panel")
-    active_trip_name = list(st.session_state.trips.keys())[0]
-    trip_ref = st.session_state.trips[active_trip_name]
-    
     with st.form("isolated_setup_form"):
         t_name = st.text_input("Trip Profile Name Designation", value=active_trip_name)
