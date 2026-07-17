@@ -181,7 +181,7 @@ else:
     st.caption(f"No active itinerary route stops assigned under the {audit_cat} wave parameter.")
 
 # -------------------------------------------------------------------------
-# MODULE 3: GUEST INTERFACE FEED SIMULATOR (FIXED INDENTATION ON LOOPS)
+# MODULE 3: GUEST INTERFACE FEED SIMULATOR (INDENTATION FLATTENED)
 # -------------------------------------------------------------------------
 st.markdown("---")
 st.markdown("### 📱 SMARTPHONE GUEST APPLICATION INTERFACE")
@@ -201,4 +201,5 @@ if live_stops:
             with st.form(f"guest_order_form_{ls['id']}"):
                 if std_items:
                     st.markdown("**🍲 Included Package Selections**")
-                    for idx, item in enumerate(std_items):
+                    for idx in range(len(std_items)):
+                        item = std_items[idx]
