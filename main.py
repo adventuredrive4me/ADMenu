@@ -111,7 +111,8 @@ if not st.session_state.logged_in:
 # =========================================================================
 st.title("📱 ADMenu Master Console")
 
-active_trip_name = list(st.session_state.trips.keys())
+# Fixed: Extracting the string element safely from the keys list
+active_trip_name = list(st.session_state.trips.keys())[0]
 trip_ref = st.session_state.trips[active_trip_name]
 
 curr_iso = trip_ref['currency'].split(' ')
@@ -181,7 +182,7 @@ else:
     st.caption(f"No active itinerary route stops assigned under the {audit_cat} wave parameter.")
 
 # -------------------------------------------------------------------------
-# MODULE 3: GUEST INTERFACE FEED SIMULATOR (INDENTATION FLATTENED)
+# MODULE 3: GUEST INTERFACE FEED SIMULATOR
 # -------------------------------------------------------------------------
 st.markdown("---")
 st.markdown("### 📱 SMARTPHONE GUEST APPLICATION INTERFACE")
