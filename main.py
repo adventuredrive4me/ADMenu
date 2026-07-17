@@ -73,7 +73,7 @@ st.markdown("""
         display: inline-block;
     }
     
-    /* 🛠️ Admin Pad Core Action Button Styling Overrides */
+    /* Admin Pad Core Action Button Styling Overrides */
     div.stButton > button {
         width: 100% !important;
         height: 75px !important;
@@ -129,7 +129,7 @@ if not st.session_state.logged_in:
 
 # --- BACK ACTION RETURN ANCHOR ---
 if st.session_state.active_view != "Dashboard":
-    if st.button("⬅_ Back to Dashboard"):
+    if st.button("⬅️ Back to Dashboard"):
         st.session_state.active_view = "Dashboard"
         st.rerun()
 
@@ -138,11 +138,11 @@ if st.session_state.active_view != "Dashboard":
 # =========================================================================
 if st.session_state.active_view == "Dashboard":
     
-    active_trip_name = list(st.session_state.trips.keys())[0]
+    active_trip_name = list(st.session_state.trips.keys())[0]  # Safe scalar parsing
     trip_ref = st.session_state.trips[active_trip_name]
     
-    curr_iso = trip_ref['currency'].split(' ')
-    curr_sym = "रू" if curr_iso[0] == "NPR" else ("€" if curr_iso[0] == "EUR" else ("$" if curr_iso[0] == "USD" else "₹"))
+    curr_iso = trip_ref['currency'].split(' ')[0]
+    curr_sym = "रू" if curr_iso == "NPR" else ("€" if curr_iso == "EUR" else ("$" if curr_iso == "USD" else "₹"))
 
     with st.container(border=True):
         st.markdown(f"### **{active_trip_name}**")
@@ -153,14 +153,20 @@ if st.session_state.active_view == "Dashboard":
     # Render Timeline Stops
     for s in trip_ref["stops"]:
         with st.container(border=True):
-            col_l1, col_l2 = st.columns([2, 1])
+            col_l1, col_l2 = st.columns(2)
             
             with col_l1:
                 if s["is_live"]:
                     st.markdown(f"🍔 **{s['name']}** &nbsp; <span class='blinking-live-tag'>LIVE</span>", unsafe_allow_html=True)
                 else:
                     st.markdown(f"🏨 **{s['name']}**")
-                st.caption(f"{s['meal']} · {s['day']} · {s['date_str']}, {s['time']}")
+                
+                # Safe Lookup Check: Guarantees fallback if key is missing
+                meal_val = s.get("meal", "Lunch")
+                day_val = s.get("day", "Day 2")
+                date_val = s.get("date_str", "27 Oct")
+                time_val = s.get("time", "02:00 pm")
+                st.caption(f"{meal_val} · {day_val} · {date_val}, {time_val}")
                 
                 if s["is_live"] and s["live_start_time"]:
                     elapsed = int(time.time() - s["live_start_time"])
@@ -208,7 +214,7 @@ if st.session_state.active_view == "Dashboard":
     st.markdown("##### 👥 Passenger Selection Audit List")
     for g in st.session_state.guests:
         with st.container(border=True):
-            cg1, cg2, cg3 = st.columns([2, 1, 1])
+            cg1, cg2, cg3 = st.columns(3)
             cg1.markdown(f"👤 **{g['name']}** <small style='color:gray;'>(ID: {g['id']})</small>", unsafe_allow_html=True)
             if g["submitted"]:
                 cg2.markdown("<span style='background-color:#d4edda; color:#155724; padding:4px 8px; border-radius:4px; font-size:0.85em;'>✅ Submitted</span>", unsafe_allow_html=True)
@@ -216,8 +222,3 @@ if st.session_state.active_view == "Dashboard":
                     g["submitted"] = False
                     st.rerun()
             else:
-                cg2.markdown("<span style='background-color:#fff3cd; color:#856404; padding:4px 8px; border-radius:4px; font-size:0.85em;'>⏳ Pending</span>", unsafe_allow_html=True)
-                if cg3.button("🔔 Ping", key=f"png_{g['id']}"):
-                    st.toast(f"Notification alert dispatched to {g['name']}!")
-# =========================================================================
-# SCREEN 2: TRIP SETUP ENVIRONMENT
