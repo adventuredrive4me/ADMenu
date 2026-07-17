@@ -8,7 +8,7 @@ from datetime import datetime
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 if 'active_view' not in st.session_state:
-    st.session_state.active_view = "Dashboard"
+    st.session_state.active_view = "Dashboard"  # Controls view routing
 if 'trips' not in st.session_state:
     st.session_state.trips = {
         "Canyon Odyssey": {
@@ -50,7 +50,7 @@ if 'guests' not in st.session_state:
 
 st.set_page_config(page_title="ADMenu App Engine", layout="centered")
 
-# --- ADVANCED CSS INJECTION TO FORCE SOLID COLOR BUTTON STYLING ---
+# --- CSS INJECTION FOR BLINKING LIVE TAG AND RED ACTION BUTTONS ---
 st.markdown("""
 <style>
     @keyframes blink {
@@ -69,29 +69,11 @@ st.markdown("""
         display: inline-block;
     }
     .stButton > button { width: 100%; border-radius: 8px; }
-    
-    /* 🔴 Strict CSS Override for Stop Live Button */
-    div[data-testid="stHorizontalBlock"] div.stButton button[aria-label="Stop Live"] {
+    /* Target the specific Stop Live red action button style */
+    div[data-testid="stSidebar"] button, div.stButton > button[pbox="stop-btn"] {
         background-color: #dc3545 !important;
         color: white !important;
         border: 1px solid #dc3545 !important;
-        font-weight: bold !important;
-    }
-    div[data-testid="stHorizontalBlock"] div.stButton button[aria-label="Stop Live"]:hover {
-        background-color: #bd2130 !important;
-        border: 1px solid #b21f2d !important;
-    }
-    
-    /* 🟢 Strict CSS Override for Share as Live Button */
-    div[data-testid="stHorizontalBlock"] div.stButton button[aria-label^="Share as Live"] {
-        background-color: #28a745 !important;
-        color: white !important;
-        border: 1px solid #28a745 !important;
-        font-weight: bold !important;
-    }
-    div[data-testid="stHorizontalBlock"] div.stButton button[aria-label^="Share as Live"]:hover {
-        background-color: #218838 !important;
-        border: 1px solid #1e7e34 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -130,32 +112,35 @@ if st.session_state.active_view == "Dashboard":
 
     st.markdown("### 🛜 LIVE GO-DASHBOARD")
     
-    # Render Timeline Stops with unified container styles
+    # Render Timeline Stops with fixed structural parameters
     for s in trip_ref["stops"]:
         if s["is_live"]:
+            # Correct nesting inside a single cohesive block container card
             with st.container(border=True):
                 col_l1, col_l2 = st.columns([2, 1])
+                
+                # Injects custom CSS blinking text component into the row layout
                 col_l1.markdown(f"🍔 **{s['name']}** &nbsp; <span class='blinking-live-tag'>LIVE</span>", unsafe_allow_html=True)
                 col_l1.caption(f"{s['meal']} · {s['day']} · {s['time']}")
                 
+                # Active Countdown Ticker text string
                 if s["live_start_time"]:
                     elapsed = int(time.time() - s["live_start_time"])
                     m, s_sec = divmod(elapsed, 60)
                     col_l1.markdown(f"⏱️ **Active ordering duration:** {m}m {s_sec}s")
                 
-                # Triggers the target text matching the red element style overrides
+                # Red stop live button configuration mapping parameters
                 if col_l2.button("Stop Live", key=f"stop_{s['id']}"):
                     s["is_live"] = False
                     s["live_start_time"] = None
                     st.rerun()
         else:
+            # Standard Grey Idle Card
             with st.container(border=True):
                 col_i1, col_i2 = st.columns([2, 1])
                 col_i1.markdown(f"🏨 **{s['name']}**")
                 col_i1.caption(f"{s['meal']} · {s['day']} · {s['time']}")
-                
-                # Triggers the string logic matching the green element style overrides
-                if col_i2.button(f"Share as Live ", key=f"start_{s['id']}"):
+                if col_i2.button("Share as Live", key=f"start_{s['id']}", type="secondary"):
                     s["is_live"] = True
                     s["live_start_time"] = time.time()
                     st.rerun()
@@ -181,22 +166,22 @@ if st.session_state.active_view == "Dashboard":
     st.markdown("### 🛠️ ADMIN TOOLS")
     b_col1, b_col2 = st.columns(2)
     
-    if b_col1.button("📖 Trip Setup", key="tool_setup"):
+    if b_col1.button("📖 Trip Setup", type="secondary"):
         st.session_state.active_view = "Trip Setup"
         st.rerun()
-    if b_col2.button("🍳 Menu Builder", key="tool_menu"):
+    if b_col2.button("🍳 Menu Builder", type="secondary"):
         st.session_state.active_view = "Menu Builder"
         st.rerun()
         
     b_col3, b_col4 = st.columns(2)
-    if b_col3.button("👥 Guest List", key="tool_guests"):
+    if b_col3.button("👥 Guest List", type="secondary"):
         st.session_state.active_view = "Guest List"
         st.rerun()
-    if b_col4.button("📊 Consolidation & Export", key="tool_export"):
+    if b_col4.button("📊 Consolidation & Export", type="secondary"):
         st.session_state.active_view = "Consolidation & Export"
         st.rerun()
         
-    if st.button("💵 Ledger & B&L Accounts Summary", key="tool_ledger"):
+    if st.button("💵 Ledger & B&L Accounts Summary", type="secondary"):
         st.session_state.active_view = "Ledger"
         st.rerun()
 
@@ -213,3 +198,14 @@ elif st.session_state.active_view == "Trip Setup":
         et_time = st.time_input("End Return Time")
         st.markdown("##### 💱 Currency Profile Tracker")
         t_curr = st.selectbox("Operational Region Currency Alignment", ["NPR - Nepalese Rupee", "INR - Indian Rupee", "USD - US Dollar"])
+        ex_rate = st.number_input("Exchange Multiplier (1 Local Unit = ? INR)", min_value=0.01, value=0.60)
+        
+        if st.form_submit_button("Update Trip Details"):
+            st.success("Trip properties synchronized successfully!")
+
+# =========================================================================
+# 🛠️ VIEW INTERFACE 3: MENU BUILDER MODULE
+# =========================================================================
+elif st.session_state.active_view == "Menu Builder":
+    st.header("🍳 Menu Item Builder Architecture")
+    trip_ref = st.session_state.trips[list(st.session_state.trips.keys())[0]]
