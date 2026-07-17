@@ -4,9 +4,13 @@ import io
 import time
 from datetime import datetime
 
-# --- PERMANENT DATABASE & STATE INITIALIZATION ---
+# =========================================================================
+# SYSTEM CORE: PERMANENT DATABASE STATE SETUPS
+# =========================================================================
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
+if 'active_view' not in st.session_state:
+    st.session_state.active_view = "Dashboard"
 if 'trips' not in st.session_state:
     st.session_state.trips = {
         "Canyon Odyssey": {
@@ -16,15 +20,15 @@ if 'trips' not in st.session_state:
             "currency": "NPR - Nepalese Rupee", "exchange_rate": 0.60,
             "stops": [
                 {
-                    "id": "stop_1", "day": "Day 2", "meal": "Lunch", "time": "02:00 pm",
+                    "id": "stop_1", "day": "Day 2", "meal": "Lunch", "time": "02:00 pm", "date_str": "27 Oct",
                     "name": "Anapurna Coffee Shop & Bakery", "phone": "+9779851110571",
-                    "email": "ygauchan@gmail.com", "is_live": True, "live_start_time": time.time() - 1500,
+                    "email": "ygauchan@gmail.com", "is_live": False, "live_start_time": None,
                     "menu": [
                         {"name": "Vegetable Noodle Soup", "course": "Soup", "unit": "Plate", "ratio": 1.0, "price": 400.0, "billing": "Payable/Admin Account", "display": True, "sort": 1}
                     ]
                 },
                 {
-                    "id": "stop_2", "day": "Day 2", "meal": "Dinner", "time": "08:00 pm",
+                    "id": "stop_2", "day": "Day 2", "meal": "Dinner", "time": "08:00 pm", "date_str": "27 Oct",
                     "name": "Hotel Grand Shambala", "phone": "+9779851187371",
                     "email": "hotelgrandshambala@gmail.com", "is_live": False, "live_start_time": None,
                     "menu": []
@@ -48,7 +52,9 @@ if 'guests' not in st.session_state:
 
 st.set_page_config(page_title="ADMenu App Engine Pro", layout="centered")
 
-# --- GLOBAL STYLE INJECTION FOR RESPONSIVE MOBILE CORE UI ---
+# =========================================================================
+# ADVANCED CSS INJECTION FOR PREMIUM MATTE LOOK & BLINKING ANIMATIONS
+# =========================================================================
 st.markdown("""
 <style>
     @keyframes blink {
@@ -66,25 +72,40 @@ st.markdown("""
         animation: blink 1.2s infinite;
         display: inline-block;
     }
-    .stButton > button { width: 100%; border-radius: 8px; }
     
-    /* 🔴 Crimson Red Stop Live Button Styling Override */
+    /* 🛠️ Admin Pad Core Action Button Styling Overrides */
+    div.stButton > button {
+        width: 100% !important;
+        height: 75px !important;
+        background-color: #ffffff !important;
+        color: #2b3a4a !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+        font-size: 1.05em !important;
+    }
+    div.stButton > button:hover {
+        border-color: #cbd5e1 !important;
+        background-color: #f8fafc !important;
+    }
+    
+    /* 🔴 Crimson Red Stop Live Button Styling */
     div[data-testid="stHorizontalBlock"] div.stButton button[aria-label="Stop Live"] {
         background-color: #dc3545 !important;
         color: white !important;
         border: 1px solid #dc3545 !important;
-        font-weight: bold !important;
+        height: 42px !important;
     }
     div[data-testid="stHorizontalBlock"] div.stButton button[aria-label="Stop Live"]:hover {
         background-color: #bd2130 !important;
     }
     
-    /* 🟢 Solid Green Share as Live Button Styling Override */
+    /* 🟢 Solid Green Share as Live Button Styling */
     div[data-testid="stHorizontalBlock"] div.stButton button[aria-label^="Share as Live"] {
         background-color: #28a745 !important;
         color: white !important;
         border: 1px solid #28a745 !important;
-        font-weight: bold !important;
+        height: 42px !important;
     }
     div[data-testid="stHorizontalBlock"] div.stButton button[aria-label^="Share as Live"]:hover {
         background-color: #218838 !important;
@@ -92,7 +113,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- SECURITY GATEKEEPER ---
+# --- SYSTEM SECURITY ENTRY PROTOCOL ---
 if not st.session_state.logged_in:
     st.title("📱 ADMenu Security Gateway")
     with st.container(border=True):
@@ -103,104 +124,100 @@ if not st.session_state.logged_in:
                 st.session_state.logged_in = True
                 st.rerun()
             else: 
-                st.error("Access denied. Invalid system credentials.")
+                st.error("Invalid administrator profile parameter entry matches.")
     st.stop()
 
+# --- BACK ACTION RETURN FLOATING LINK ---
+if st.session_state.active_view != "Dashboard":
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.sidebar.button("⬅️ Return to Main Console View"):
+        st.session_state.active_view = "Dashboard"
+        st.rerun()
+
 # =========================================================================
-# 📺 ALL-IN-ONE MASTER CONSOLE
+# VIEW CONTROLLER 1: CORE SCREEN LIVE GO-DASHBOARD (YOUR IMAGE LAYOUT)
 # =========================================================================
-st.title("📱 ADMenu Master Console")
+if st.session_state.active_view == "Dashboard":
+    
+    # Extract string key safely to eliminate dictionary indexing crashes
+    active_trip_name = list(st.session_state.trips.keys())[0]
+    trip_ref = st.session_state.trips[active_trip_name]
+    
+    # Format Currency Strings
+    curr_iso = trip_ref['currency'].split(' ')[0]
+    curr_sym = "रू" if curr_iso == "NPR" else ("€" if curr_iso == "EUR" else ("$" if curr_iso == "USD" else "₹"))
 
-active_trip_name = list(st.session_state.trips.keys())[0]
-trip_ref = st.session_state.trips[active_trip_name]
+    # Render Header Card matching your layout view profile precisely
+    with st.container(border=True):
+        st.markdown(f"### **{active_trip_name}**")
+        st.markdown(f"<span style='color:gray;'>{trip_ref['start'].strftime('%d %b')} — {trip_ref['end'].strftime('%d %b')}</span>", unsafe_allow_html=True)
 
-# Fixed: Extracting string code token fragment cleanly from the parameter value string 
-curr_iso = trip_ref['currency'].split(' ')[0]
-curr_sym = "रू" if curr_iso == "NPR" else ("€" if curr_iso == "EUR" else ("$" if curr_iso == "USD" else "₹"))
-
-with st.container(border=True):
-    st.subheader(active_trip_name)
-    st.caption(f"🗓️ Parameters: {trip_ref['start'].strftime('%d %b')} → {trip_ref['end'].strftime('%d %b %Y')}")
-    col_meta1, col_meta2 = st.columns(2)
-    col_meta1.metric("⏳ Duration Calculated", f"{trip_ref['days']} Days / {trip_ref['nights']} Nights")
-    col_meta2.metric("💱 Operational FX Conversion", f"1 {curr_iso} = ₹{trip_ref['exchange_rate']:.4f}")
-
-# -------------------------------------------------------------------------
-# MODULE 1: LIVE ITINERARY GO-DASHBOARD
-# -------------------------------------------------------------------------
-st.markdown("### 🛜 LIVE GO-DASHBOARD")
-for s in trip_ref["stops"]:
-    if s["is_live"]:
+    st.markdown("#### 🛜 LIVE GO-DASHBOARD")
+    
+    # Render Dynamic Multi-Stop Route Timelines
+    for s in trip_ref["stops"]:
         with st.container(border=True):
-            col_l1, col_l2 = st.columns(2)
-            col_l1.markdown(f"🍔 **{s['name']}** &nbsp; <span class='blinking-live-tag'>LIVE</span>", unsafe_allow_html=True)
-            col_l1.caption(f"{s['meal']} · {s['day']} · {s['time']}")
-            if s["live_start_time"]:
-                elapsed = int(time.time() - s["live_start_time"])
-                m, s_sec = divmod(elapsed, 60)
-                col_l1.markdown(f"⏱️ **Ordering Window Active:** {m}m {s_sec}s")
-            if col_l2.button("Stop Live", key=f"stop_{s['id']}"):
-                s["is_live"] = False
-                s["live_start_time"] = None
-                st.rerun()
-    else:
-        with st.container(border=True):
-            col_i1, col_i2 = st.columns(2)
-            col_i1.markdown(f"🏨 **{s['name']}**")
-            col_i1.caption(f"{s['meal']} · {s['day']} · {s['time']}")
-            if col_i2.button(f"Share as Live", key=f"start_{s['id']}"):
-                s["is_live"] = True
-                s["live_start_time"] = time.time()
-                st.rerun()
+            col_l1, col_l2 = st.columns([2, 1])
+            
+            with col_l1:
+                if s["is_live"]:
+                    st.markdown(f"🍔 **{s['name']}** &nbsp; <span class='blinking-live-tag'>LIVE</span>", unsafe_allow_html=True)
+                else:
+                    st.markdown(f"🏨 **{s['name']}**")
+                st.caption(f"{s['meal']} · {s['day']} · {s['date_str']}, {s['time']}")
+                
+                # Active Dynamic Countdown Clock Readout
+                if s["is_live"] and s["live_start_time"]:
+                    elapsed = int(time.time() - s["live_start_time"])
+                    m, s_sec = divmod(elapsed, 60)
+                    st.markdown(f"<small style='color:#dc3545;'>⏱️ Ordering Active: <b>{m}m {s_sec}s</b></small>", unsafe_allow_html=True)
 
-# -------------------------------------------------------------------------
-# MODULE 2: GUEST SUBMISSION STATUS LIST
-# -------------------------------------------------------------------------
-st.markdown("---")
-st.markdown("### 👥 GUEST SELECTION WAVE MONITOR")
-audit_cat = st.selectbox("Select Operational Category Window to Audit", ["Breakfast", "Lunch", "Snacks-Break", "Dinner", "Beverages"])
-
-active_audit_stops = [s for s in trip_ref["stops"] if s["meal"] == audit_cat]
-
-if active_audit_stops:
-    for s_target in active_audit_stops:
-        st.markdown(f"**Venue Stop Monitor: {s_target['name']}**")
-        for g in st.session_state.guests:
-            with st.container(border=True):
-                cg1, cg2, cg3 = st.columns(3)
-                cg1.markdown(f"👤 **{g['name']}**<br><span style='font-size:0.8em; color:gray;'>ID: {g['id']}</span>", unsafe_allow_html=True)
-                if g["submitted"]:
-                    cg2.markdown("<div style='padding-top:10px;'><span style='background-color:#d4edda; color:#155724; padding:6px 12px; border-radius:4px; font-size:0.9em;'>✅ Submitted</span></div>", unsafe_allow_html=True)
-                    if cg3.button("Allow changes", key=f"chg_{g['id']}_{s_target['id']}"):
-                        g["submitted"] = False
+            with col_l2:
+                st.markdown("<div style='padding-top:8px;'></div>", unsafe_allow_html=True)
+                if s["is_live"]:
+                    if st.button("Stop Live", key=f"stop_{s['id']}"):
+                        s["is_live"] = False
+                        s["live_start_time"] = None
                         st.rerun()
                 else:
-                    cg2.markdown("<div style='padding-top:10px;'><span style='background-color:#fff3cd; color:#856404; padding:6px 12px; border-radius:4px; font-size:0.9em;'>⏳ Pending</span></div>", unsafe_allow_html=True)
-                    if cg3.button("🔔 Ping", key=f"png_{g['id']}_{s_target['id']}"):
-                        st.toast(f"Notification ping dispatched to {g['name']}!")
-else:
-    st.caption(f"No active itinerary route stops assigned under the {audit_cat} wave parameter.")
+                    if st.button("Share as Live", key=f"start_{s['id']}"):
+                        s["is_live"] = True
+                        s["live_start_time"] = time.time()
+                        st.rerun()
 
-# -------------------------------------------------------------------------
-# MODULE 3: GUEST INTERFACE FEED SIMULATOR
-# -------------------------------------------------------------------------
-st.markdown("---")
-st.markdown("### 📱 SMARTPHONE GUEST APPLICATION INTERFACE")
-simulated_guest = st.selectbox("Select Passenger Profile Identity", [g["name"] for g in st.session_state.guests])
-g_ref = next(g for g in st.session_state.guests if g["name"] == simulated_guest)
+    # --- ADMIN TOOLS CONTROLLER PAD GENERATOR (MATCHES IMAGE SPEC) ---
+    st.markdown("#### ADMIN TOOLS")
+    
+    col_btn1, col_btn2 = st.columns(2)
+    if col_btn1.button("📖\n\nTrip Setup", key="pad_setup"):
+        st.session_state.active_view = "Trip Setup"
+        st.rerun()
+    if col_btn2.button("🍴\n\nMenu Builder", key="pad_builder"):
+        st.session_state.active_view = "Menu Builder"
+        st.rerun()
+        
+    col_btn3, col_btn4 = st.columns(2)
+    if col_btn3.button("👥\n\nGuest List", key="pad_guests"):
+        st.session_state.active_view = "Guest List"
+        st.rerun()
+    if col_btn4.button("📊\n\nConsolidation & Export", key="pad_export"):
+        st.session_state.active_view = "Consolidation & Export"
+        st.rerun()
+        
+    if st.button("💵\n\nLedger", key="pad_ledger"):
+        st.session_state.active_view = "Ledger"
+        st.rerun()
 
-live_stops = [s for s in trip_ref["stops"] if s["is_live"]]
-
-if live_stops:
-    global_pricing_toggle = st.checkbox("Reveal prices in local currency to guests for Admin packages", value=False)
-    for ls in live_stops:
-        st.markdown(f"##### Active Digital Menu Card: {ls['name']}")
-        if ls["menu"]:
-            std_items = [i for i in ls["menu"] if i["billing"] != "Chargeable Food" and i["display"]]
-            charge_items = [i for i in ls["menu"] if i["billing"] == "Chargeable Food" and i["display"]]
-            
-            with st.form(f"guest_order_form_{ls['id']}"):
-                if std_items:
-                    st.markdown("**🍲 Included Package Selections**")
-                    for idx in range(len(std_items)):
-                        item = std_items[idx]
+    # Real-Time Passenger Status Monitor Summary Feed
+    st.markdown("---")
+    st.markdown("##### 👥 Passenger Selection Audit List")
+    for g in st.session_state.guests:
+        with st.container(border=True):
+            cg1, cg2, cg3 = st.columns([1, 1, 1])
+            cg1.markdown(f"👤 **{g['name']}** <small style='color:gray;'>(ID: {g['id']})</small>", unsafe_allow_html=True)
+            if g["submitted"]:
+                cg2.markdown("<span style='background-color:#d4edda; color:#155724; padding:4px 8px; border-radius:4px; font-size:0.85em;'>✅ Submitted</span>", unsafe_allow_html=True)
+                if cg3.button("Reset Entry", key=f"reset_{g['id']}"):
+                    g["submitted"] = False
+                    st.rerun()
+            else:
