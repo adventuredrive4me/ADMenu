@@ -124,7 +124,7 @@ if not st.session_state.logged_in:
                 st.session_state.logged_in = True
                 st.rerun()
             else: 
-                st.error("Withdrawn. Incorret administrative credentials.")
+                st.error("Incorrect administrative credentials.")
     st.stop()
 
 # --- BACK ACTION RETURN ANCHOR ---
@@ -142,7 +142,7 @@ if st.session_state.active_view == "Dashboard":
     trip_ref = st.session_state.trips[active_trip_name]
     
     curr_iso = trip_ref['currency'].split(' ')
-    curr_sym = "रू" if curr_iso[0] == "NPR" else ("€" if curr_iso[0] == "EUR" else ("$" if curr_iso[0] == "USD" else "₹"))
+    curr_sym = "रू" if curr_iso == "NPR" else ("€" if curr_iso == "EUR" else ("$" if curr_iso == "USD" else "₹"))
 
     with st.container(border=True):
         st.markdown(f"### **{active_trip_name}**")
@@ -215,6 +215,7 @@ if st.session_state.active_view == "Dashboard":
         with st.container(border=True):
             cg1, cg2, cg3 = st.columns(3)
             cg1.markdown(f"👤 **{g['name']}** <small style='color:gray;'>(ID: {g['id']})</small>", unsafe_allow_html=True)
+            
             if g["submitted"]:
                 cg2.markdown("<span style='background-color:#d4edda; color:#155724; padding:4px 8px; border-radius:4px; font-size:0.85em;'>✅ Submitted</span>", unsafe_allow_html=True)
                 if cg3.button("Reset", key=f"reset_{g['id']}"):
